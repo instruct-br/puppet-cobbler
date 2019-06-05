@@ -114,17 +114,28 @@
 class cobbler (
   $cobbler_config         = {},
   $cobbler_modules_config = {},
-  $ensure                 = $::cobbler::params::ensure,
-  $package                = $::cobbler::params::package,
-  $package_ensure         = $::cobbler::params::package_ensure,
-  $service                = $::cobbler::params::service,
-  $service_ensure         = $::cobbler::params::service_ensure,
-  $service_enable         = $::cobbler::params::service_enable,
-  $config_path            = $::cobbler::params::config_path,
   $config_file            = $::cobbler::params::config_file,
   $config_modules         = $::cobbler::params::config_modules,
+  $config_path            = $::cobbler::params::config_path,
+  $config_selinux         = $::cobbler::params::config_selinux,
   $default_cobbler_config = $::cobbler::params::default_cobbler_config,
   $default_modules_config = $::cobbler::params::default_modules_config,
+  $dhcp_dns               = $::cobbler::params::dhcp_dns,
+  $dhcp_netmask           = $::cobbler::params::dhcp_netmask,
+  $dhcp_network           = $::cobbler::params::dhcp_network,
+  $dhcp_range_end         = $::cobbler::params::dhcp_range_end,
+  $dhcp_range_init        = $::cobbler::params::dhcp_range_init,
+  $dhcp_router            = $::cobbler::params::dhcp_router,
+  $ensure                 = $::cobbler::params::ensure,
+  $install_cobbler_web    = $::cobbler::params::install_cobbler_web,
+  $package                = $::cobbler::params::package,
+  $package_cobbler_web    = $::cobbler::params::package_cobbler_web,
+  $package_dhcp           = $::cobbler::params::package_dhcp,
+  $package_ensure         = $::cobbler::params::package_ensure,
+  $service                = $::cobbler::params::service,
+  $service_dhcp           = $::cobbler::params::service_dhcp,
+  $service_enable         = $::cobbler::params::service_enable,
+  $service_ensure         = $::cobbler::params::service_ensure,
 ) inherits ::cobbler::params {
 
   # Validation
@@ -138,18 +149,31 @@ class cobbler (
     '^held$',
     '^latest$',
   ])
+
   validate_string(
-    $service,
     $config_file,
-    $config_modules
+    $config_modules,
+    $package_cobbler_web,
+    $package_dhcp,
   )
+
   validate_absolute_path(
     $config_path,
   )
+
+  validate_array(
+    $dhcp_dns,
+  )
+
   validate_hash(
-    $default_cobbler_config,
     $cobbler_config,
     $cobbler_modules_config,
+    $default_cobbler_config,
+  )
+
+  validate_bool(
+    $config_selinux,
+    $install_cobbler_web,
   )
 
   if is_string($service_enable) {
@@ -161,19 +185,8 @@ class cobbler (
     validate_bool($service_enable)
   }
 
-  if is_array($package) {
-    validate_array($package)
-  } else {
-    validate_string($package)
-  }
-
   anchor{'cobbler::begin':}
   anchor{'cobbler::end':}
-
-  class{'cobbler::install':
-    package        => $package,
-    package_ensure => $package_ensure,
-  }
 
   # Merging default cobbler config and cobbler config and pass to
   # cobbler::config class
@@ -186,19 +199,49 @@ class cobbler (
     $cobbler_modules_config
   )
 
+  $install_dhcp = num2bool($_cobbler_config['manage_dhcp'])
+
+  if $install_dhcp and (
+    $dhcp_network    == undef or
+    $dhcp_netmask    == undef or
+    $dhcp_range_init == undef or
+    $dhcp_range_end  == undef or
+    $dhcp_router     == undef
+  ) {
+    fail('When the manage_dhcp is enable, dhcp parameters need to be configured!')
+  }
+
+  class{'cobbler::install':
+    install_cobbler_web => $install_cobbler_web,
+    install_dhcp        => $install_dhcp,
+    package             => $package,
+    package_cobbler_web => $package_cobbler_web,
+    package_dhcp        => $package_dhcp,
+    package_ensure      => $package_ensure,
+  }
+
   class{'cobbler::config':
-    ensure                 => $ensure,
     cobbler_config         => $_cobbler_config,
     cobbler_modules_config => $_cobbler_modules_config,
-    config_path            => $config_path,
     config_file            => $config_file,
     config_modules         => $config_modules,
+    config_path            => $config_path,
+    dhcp_dns               => $dhcp_dns,
+    dhcp_netmask           => $dhcp_netmask,
+    dhcp_network           => $dhcp_network,
+    dhcp_range_end         => $dhcp_range_end,
+    dhcp_range_init        => $dhcp_range_init,
+    dhcp_router            => $dhcp_router,
+    ensure                 => $ensure,
+    install_dhcp           => $install_dhcp,
   }
 
   class{'cobbler::service':
+    install_dhcp   => $install_dhcp,
     service        => $service,
-    service_ensure => $service_ensure,
+    service_dhcp   => $service_dhcp,
     service_enable => $service_enable,
+    service_ensure => $service_ensure,
   }
 
   Anchor['cobbler::begin']

@@ -21,8 +21,12 @@
 #
 # Anton Baranov <abaranov@linuxfoundation.org>
 class cobbler::install (
-  $package,
+  $install_cobbler_web,
+  $install_dhcp,
+  $package_cobbler_web,
+  $package_dhcp,
   $package_ensure,
+  $package,
 ){
   # Validation
   validate_re($package_ensure,[
@@ -42,5 +46,32 @@ class cobbler::install (
 
   package { $package:
     ensure => $package_ensure,
+  }
+
+  if $install_cobbler_web {
+    package { $package_cobbler_web:
+      ensure => $package_ensure,
+    }
+
+    # Force use of Django 1.9. New versions are not supported.
+    class { 'python':
+      version => 'system',
+      pip     => 'present',
+    }
+
+    python::pip { 'django':
+      ensure  => '1.9',
+      require => Package[$package],
+      notify  => [
+        Service['cobblerd'],
+        Service['httpd'],
+      ]
+    }
+  }
+
+  if $install_dhcp {
+    package { $package_dhcp:
+      ensure => $package_ensure,
+    }
   }
 }

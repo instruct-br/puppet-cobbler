@@ -12,17 +12,39 @@
 class cobbler::params {
   $ensure                 = 'present'
   $package                = [
-                              'cobbler',
-                              'syslinux',
-                              'syslinux-tftpboot'
-                            ]
+    'epel-release',
+    'cobbler',
+    'debmirror',
+    'fence-agents',
+    'pykickstart',
+    'syslinux-tftpboot',
+    'syslinux',
+  ]
+  $package_cobbler_web    = 'cobbler-web'
+  $package_dhcp           = 'dhcp'
   $package_ensure         = 'installed'
-  $service                = 'cobblerd'
+  $service                = [
+    'cobblerd',
+    'httpd',
+    'rsyncd'
+  ]
+  $service_dhcp           = 'dhcpd'
   $service_ensure         = 'running'
   $service_enable         = true
   $config_path            = '/etc/cobbler'
   $config_file            = 'settings'
   $config_modules         = 'modules.conf'
+  $config_selinux         = true
+  $install_cobbler_web    = true
+  $dhcp_network           = undef
+  $dhcp_netmask           = undef
+  $dhcp_range_init        = undef
+  $dhcp_range_end         = undef
+  $dhcp_router            = undef
+  $dhcp_dns               = [
+    '1.1.1.1',
+    '8.8.8.8'
+  ]
   # Default config you have just after cobbler is installed
   # Just load yaml as cobbler use yaml format for $config_file
   $default_cobbler_config = {
@@ -35,7 +57,7 @@ class cobbler::params {
     'auth_token_expiration'                 => 3600,
     'build_reporting_enabled'               => 0,
     'build_reporting_sender'                => '',
-    'build_reporting_email'                 => [ 'root@localhost'],
+    'build_reporting_email'                 => ['root@localhost'],
     'build_reporting_smtp_server'           => 'localhost',
     'build_reporting_subject'               => '',
     'build_reporting_ignorelist'            => [],

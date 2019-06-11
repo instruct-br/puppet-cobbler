@@ -7,8 +7,27 @@
   "source": "https://github.com/spacedog/puppet-cobbler",
   "project_page": "https://github.com/spacedog/puppet-cobbler",
   "issues_url": "https://github.com/spacedog/puppet-cobbler/issues",
+  "tags": [
+    "cobbler",
+    "cobbler-web"
+  ],
   "dependencies": [
-    {"name":"puppetlabs-stdlib","version_requirement":">= 4.6.0 <5.0.0"}
+    {
+      "name":"puppetlabs-stdlib",
+      "version_requirement":">= 4.6.0 < 5.0.0"
+    },
+    {
+      "name":"puppetlabs-selinux",
+      "version_requirement":">= 2.0.0 < 3.0.0"
+    },
+    {
+      "name":"puppetlabs-augeas_core",
+      "version_requirement":">= 1.0.4 < 2.0.0"
+    },
+    {
+      "name":"puppet-python",
+      "version_requirement":">= 2.2.2 < 3.0.0"
+    }
   ],
   "operatingsystem_support": [
     {

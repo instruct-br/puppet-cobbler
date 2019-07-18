@@ -28,14 +28,18 @@
 #
 # Anton Baranov <abaranov@linuxfoundation.org>
 class cobbler::service (
-  $service,
-  $service_ensure,
+  $manage_dhcp,
   $service_enable,
+  $service_ensure,
+  $service,
 ){
   # Validation
-  validate_string(
-    $service,
-  )
+  if is_array($service) {
+    validate_array($service)
+  } else {
+    validate_string($service)
+  }
+
   validate_re($service_ensure,['^stopped$', '^running$'])
 
   if is_string($service_enable) {
@@ -46,8 +50,30 @@ class cobbler::service (
   } else {
     validate_bool($service_enable)
   }
+
   service {$service:
     ensure => $service_ensure,
     enable => $service_enable,
+  }
+
+  # TFTP is an indirect service
+  service { 'tftp':
+    ensure => 'running',
+    enable => true,
+  }
+
+  if $manage_dhcp {
+    service { 'dhcpd':
+      ensure  => running,
+      enable  => true,
+      require => Exec['sync_and_get_loaders'],
+    }
+  }
+
+  # Run Cobbler sync and get-loaders every service restart
+  exec { 'sync_and_get_loaders':
+    command     => '/bin/sleep 5 && /bin/cobbler sync && /bin/cobbler get-loaders',
+    refreshonly => true,
+    subscribe   => Service['cobblerd'],
   }
 }

@@ -121,6 +121,9 @@ class cobbler::config(
   # Configure SELinux
   if $manage_selinux {
     include cobbler::config::selinux
+
+    Class['cobbler::config::selinux']
+    -> Exec['sync_and_get_loaders']
   }
 
   # Configure files

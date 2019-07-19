@@ -26,7 +26,7 @@ class cobbler::install (
 ) {
 
   $cobbler_dependencies = ['debmirror', 'fence-agents', 'pykickstart',
-                            'syslinux-tftpboot', 'syslinux', ]
+                            'syslinux-tftpboot', 'syslinux', 'xinetd']
 
   package { $cobbler_dependencies:
     ensure => installed,

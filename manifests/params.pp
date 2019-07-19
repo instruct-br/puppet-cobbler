@@ -14,7 +14,8 @@ class cobbler::params {
   $service                = [
     'cobblerd',
     'httpd',
-    'rsyncd'
+    'rsyncd',
+    'xinetd'
   ]
   $service_ensure         = 'running'
   $service_enable         = true

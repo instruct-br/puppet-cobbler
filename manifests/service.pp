@@ -59,7 +59,6 @@ class cobbler::service (
   # TFTP is an indirect service
   service { 'tftp':
     ensure => 'running',
-    enable => true,
   }
 
   if $manage_dhcp {

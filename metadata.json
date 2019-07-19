@@ -1,23 +1,38 @@
 {
-  "name": "abaranov-cobbler",
-  "version": "0.3.3",
+  "name": "instruct-cobbler",
+  "version": "0.3.4",
   "author": "abaranov",
   "summary": "Module manages cobbler: linux installation server that allows for rapid setup of network installation environments",
   "license": "Apache-2.0",
-  "source": "https://github.com/spacedog/puppet-cobbler",
-  "project_page": "https://github.com/spacedog/puppet-cobbler",
-  "issues_url": "https://github.com/spacedog/puppet-cobbler/issues",
+  "source": "https://github.com/instruct-br/puppet-cobbler",
+  "project_page": "https://github.com/instruct-br/puppet-cobbler",
+  "issues_url": "https://github.com/instruct-br/puppet-cobbler/issues",
+  "tags": [
+    "cobbler",
+    "cobbler-web"
+  ],
   "dependencies": [
-    {"name":"puppetlabs-stdlib","version_requirement":">= 4.6.0 <5.0.0"}
+    {
+      "name":"puppetlabs-stdlib",
+      "version_requirement":">= 4.6.0 < 5.0.0"
+    },
+    {
+      "name":"puppet-selinux",
+      "version_requirement":">= 2.0.0 < 3.0.0"
+    },
+    {
+      "name":"puppet-python",
+      "version_requirement":">= 2.2.2 < 3.0.0"
+    }
   ],
   "operatingsystem_support": [
     {
     "operatingsystem":"RedHat",
-    "operatingsystemrelease":[ "6.0", "7.0" ]
+    "operatingsystemrelease":[ "7.0" ]
   },
   {
     "operatingsystem":"CentOS",
-    "operatingsystemrelease":[ "6.0", "7.0" ]
+    "operatingsystemrelease":[ "7.0" ]
   }
   ]
 }

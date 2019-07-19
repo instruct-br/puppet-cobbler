@@ -11,13 +11,12 @@
 # Anton Baranov <email:abaranov@linuxfoundation.org>
 class cobbler::params {
   $ensure                 = 'present'
-  $package                = [
-                              'cobbler',
-                              'syslinux',
-                              'syslinux-tftpboot'
-                            ]
-  $package_ensure         = 'installed'
-  $service                = 'cobblerd'
+  $service                = [
+    'cobblerd',
+    'httpd',
+    'rsyncd',
+    'xinetd'
+  ]
   $service_ensure         = 'running'
   $service_enable         = true
   $config_path            = '/etc/cobbler'
@@ -35,7 +34,7 @@ class cobbler::params {
     'auth_token_expiration'                 => 3600,
     'build_reporting_enabled'               => 0,
     'build_reporting_sender'                => '',
-    'build_reporting_email'                 => [ 'root@localhost'],
+    'build_reporting_email'                 => ['root@localhost'],
     'build_reporting_smtp_server'           => 'localhost',
     'build_reporting_subject'               => '',
     'build_reporting_ignorelist'            => [],

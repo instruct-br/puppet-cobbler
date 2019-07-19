@@ -63,12 +63,20 @@
 #
 # Anton Baranov <abaranov@linuxfoundation.org>
 class cobbler::config(
-  $ensure,
   $cobbler_config,
   $cobbler_modules_config,
-  $config_path,
   $config_file,
   $config_modules,
+  $config_path,
+  $dhcp_dns,
+  $dhcp_netmask,
+  $dhcp_network,
+  $dhcp_range_end,
+  $dhcp_range_init,
+  $dhcp_router,
+  $ensure,
+  Boolean $manage_dhcp,
+  Boolean $manage_selinux,
 ){
   # Validation
   validate_absolute_path(
@@ -84,7 +92,6 @@ class cobbler::config(
     $config_file,
     $config_modules
   )
-
 
   File {
     owner   => 'root',
@@ -109,6 +116,53 @@ class cobbler::config(
     ensure      => $ensure,
     config_file => "${config_path}/${config_modules}",
     options     => $cobbler_modules_config,
+  }
+
+  # Configure SELinux
+  if $manage_selinux {
+    include cobbler::config::selinux
+
+    Class['cobbler::config::selinux']
+    -> Exec['sync_and_get_loaders']
+  }
+
+  # Configure files
+  augeas { '/etc/xinetd.d/tftp':
+    context => '/files/etc/xinetd.d/tftp/service',
+    changes => [
+      'set disable no',
+    ],
+    notify  => Service['cobblerd'],
+  }
+
+  file_line { 'Comment dists debmirror':
+    ensure             => present,
+    path               => '/etc/debmirror.conf',
+    line               => '#@dists="sid";',
+    match              => '^@dists="sid".*',
+    append_on_no_match => false,
+  }
+
+  file_line { 'Comment arches debmirror':
+    ensure             => present,
+    path               => '/etc/debmirror.conf',
+    line               => '#@arches="i386";',
+    match              => '^@arches=.*',
+    append_on_no_match => false,
+  }
+
+  if $manage_dhcp {
+    file { '/etc/cobbler/dhcp.template':
+      ensure  => file,
+      content => epp('cobbler/dhcp.epp', {
+        dhcp_dns        => $dhcp_dns,
+        dhcp_netmask    => $dhcp_netmask,
+        dhcp_network    => $dhcp_network,
+        dhcp_range_end  => $dhcp_range_end,
+        dhcp_range_init => $dhcp_range_init,
+        dhcp_router     => $dhcp_router,
+      })
+    }
   }
 
 }

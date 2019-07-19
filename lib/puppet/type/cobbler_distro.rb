@@ -115,6 +115,24 @@ Puppet::Type.newtype(:cobbler_distro) do
   newproperty(:comment) do
     desc "An optional comment to associate with this distro"
   end
+  
+  newproperty(:kopts) do
+    desc "An optional kernel options to associate with this distro"
+    munge do | value |
+      hash_result = {}
+      kopts = value.split()
+      
+      kopts.each do | value |
+        hash = {
+          value => '~'
+        }
+        hash_result = hash_result.merge(hash)
+      end
+      
+      hash_result
+    end
+
+  end
 
   validate do
     if self[:ensure] == :present 

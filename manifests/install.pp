@@ -21,26 +21,27 @@
 #
 # Anton Baranov <abaranov@linuxfoundation.org>
 class cobbler::install (
-  $package,
-  $package_ensure,
-){
-  # Validation
-  validate_re($package_ensure,[
-    '^present$',
-    '^installed$',
-    '^absent$',
-    '^purged$',
-    '^held$',
-    '^latest$',
-  ])
+  Boolean $manage_dhcp,
+  String $package_ensure,
+) {
 
-  if is_array($package) {
-    validate_array($package)
-  } else {
-    validate_string($package)
+  $cobbler_dependencies = ['debmirror', 'fence-agents', 'pykickstart',
+                            'syslinux-tftpboot', 'syslinux', 'xinetd']
+
+  package { $cobbler_dependencies:
+    ensure => installed,
   }
 
-  package { $package:
+  package { 'cobbler':
     ensure => $package_ensure,
   }
+
+  if $manage_dhcp {
+
+    package { 'dhcp':
+      ensure => installed,
+    }
+
+  }
+
 }

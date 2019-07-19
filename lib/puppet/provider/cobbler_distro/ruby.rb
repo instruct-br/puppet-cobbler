@@ -30,6 +30,7 @@ Puppet::Type.type(:cobbler_distro).provide(:ruby) do
         :kernel  => distro['kernel'],
         :ksmeta  => distro['ks_meta'],
         :initrd  => distro['initrd'],
+        :kopts   => distro['kernel_options'],
         :comment => distro['comment'],
         :owners  => distro['owners']
       )
@@ -71,7 +72,9 @@ Puppet::Type.type(:cobbler_distro).provide(:ruby) do
       "initrd",
       "arch",
       "comment",
-      "owners"
+      "owners",
+      "ksmeta",
+      "kopts"
     ]
     for property in properties
       unless self.send(property) == @resource[property] or @resource[property].nil?
@@ -156,5 +159,9 @@ Puppet::Type.type(:cobbler_distro).provide(:ruby) do
 
   def ksmeta=(value)
     self.set_field("ksmeta", value)
+  end
+  
+  def kopts=(value)
+    self.set_field("kopts", value)
   end
 end

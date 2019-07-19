@@ -131,6 +131,7 @@ class cobbler (
   Boolean $install_cobbler_web = true,
   String $cobbler_web_package_ensure = 'installed',
   $package_ensure         = 'installed',
+  $service                = $::cobbler::params::service,
   $service_enable         = $::cobbler::params::service_enable,
   $service_ensure         = $::cobbler::params::service_ensure,
 ) inherits ::cobbler::params {
@@ -184,12 +185,15 @@ class cobbler (
 
   $manage_dhcp = Boolean($_cobbler_config['manage_dhcp'])
 
-  if $manage_dhcp and !(
-    $dhcp_network or
-    $dhcp_netmask or
-    $dhcp_range_init or
-    $dhcp_range_end or
-    $dhcp_router ) {
+  if $manage_dhcp and
+    !(
+      $dhcp_network and
+      $dhcp_netmask and
+      $dhcp_range_init and
+      $dhcp_range_end and
+      $dhcp_router and
+      !(size($dhcp_dns) == 0)
+    ) {
     fail('When the manage_dhcp is enabled, dhcp parameters must to be configured!')
   }
 
